@@ -316,6 +316,12 @@ h1.logo{margin:2px 0 4px}
 #a2hs .row .btn{flex:none;padding:10px 14px}
 #a2hs .row .big{flex:1;font-size:18px;padding:9px 12px;box-shadow:0 4px 0 #7d1630,0 0 0 2px var(--ink)}
 @media (prefers-reduced-motion:reduce){#a2hs.on{animation:none}}
+
+/* ---- 鎖定縮放：禁止雙擊放大與雙指縮放 ---- */
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#stage,#stage *{touch-action:manipulation}
+.sheet,.sheet *{touch-action:pan-y}
+#cv,#pv,#cover,#cover *{touch-action:none}
 @media (prefers-reduced-motion:reduce){#orb{transform:none !important}#flip.ready{animation:none}.bar i{transition:none}}
 </style>
 </head>
@@ -1291,6 +1297,12 @@ pv.addEventListener('pointermove',e=>{
   });
   box.classList.add('on');
 })();
+
+/* ---------- 鎖定縮放（iOS 會忽略 viewport 的禁止縮放設定） ---------- */
+['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 
 /* ---------- 啟動 ---------- */
 if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches){stage.classList.add('desk');$('hint').textContent='用方向鍵操作，也可以用滑鼠點';}
