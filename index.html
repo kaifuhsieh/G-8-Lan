@@ -241,6 +241,51 @@ kbd{display:none}
 .desk.fighting .keys{display:flex}
 .keys kbd{pointer-events:auto;cursor:pointer;width:52px;height:52px;font-size:26px;border-radius:10px}
 .keys span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 0 var(--ink)}
+
+/* ---- 封面：滿版。比圖片瘦的螢幕裁左右，比圖片寬的螢幕用模糊底補滿 ---- */
+#cover{position:absolute;inset:0;z-index:5;display:none;overflow:hidden;background:#241245 url(cover.jpg) center/cover no-repeat;border:0;padding:0;margin:0;width:100%;height:100%;cursor:pointer}
+#cover.on{display:block}
+#cover::before{content:"";position:absolute;inset:-30px;background:inherit;filter:blur(18px) brightness(.55)}
+#cover img{position:absolute;top:0;left:50%;height:100%;width:auto;max-width:none;transform:translateX(-50%);display:block}
+#cover:focus-visible{outline:4px solid #7df3ff;outline-offset:-4px}
+
+/* ---- 轉場與進場微動畫（用 translate/scale，不蓋掉既有的 transform） ---- */
+@keyframes popIn{0%{opacity:0;translate:0 28px;scale:.9}55%{opacity:1;translate:0 -7px;scale:1.04}78%{translate:0 2px;scale:.99}100%{opacity:1;translate:0 0;scale:1}}
+@keyframes chipIn{0%{opacity:0;scale:.5}60%{opacity:1;scale:1.12}100%{opacity:1;scale:1}}
+@keyframes dropIn{0%{opacity:0;translate:0 -40px}60%{opacity:1;translate:0 6px}100%{opacity:1;translate:0 0}}
+@keyframes riseIn{0%{opacity:0;translate:0 60px}60%{opacity:1;translate:0 -6px}100%{opacity:1;translate:0 0}}
+@keyframes sheetOut{to{opacity:0;scale:1.06}}
+@keyframes coverOut{to{opacity:0;scale:1.18}}
+.sheet.on > *{animation:popIn .5s cubic-bezier(.2,.8,.3,1) backwards}
+.sheet.on > *:nth-child(2){animation-delay:.04s}.sheet.on > *:nth-child(3){animation-delay:.08s}
+.sheet.on > *:nth-child(4){animation-delay:.12s}.sheet.on > *:nth-child(5){animation-delay:.16s}
+.sheet.on > *:nth-child(6){animation-delay:.2s}.sheet.on > *:nth-child(7){animation-delay:.24s}
+.sheet.on > *:nth-child(n+8){animation-delay:.28s}
+.sheet.on > .swag{animation:dropIn .45s backwards}
+.sheet.on > .lan{animation:dropIn .6s .1s backwards;transform-origin:50% 0}
+.sheet.on > h1{animation:dropIn .5s .05s cubic-bezier(.2,.8,.3,1) backwards}
+.sheet.on > .rec{animation:none}
+.sheet.on .rec div{animation:popIn .5s backwards}
+.sheet.on .rec div:nth-child(1){animation-delay:.14s}.sheet.on .rec div:nth-child(2){animation-delay:.2s}.sheet.on .rec div:nth-child(3){animation-delay:.26s}
+#setup.on #stepQ{animation:popIn .4s backwards}
+#setup.on #stepNo{animation:chipIn .35s backwards}
+#setup.on fieldset{animation-delay:.05s}
+#setup.on fieldset ~ fieldset[data-step="1"]{animation-delay:.14s}
+#setup.on .chip{animation:chipIn .34s calc(.12s + var(--i,0) * 35ms) backwards}
+.sheet.on > .signRow,.sheet.on > .actions{animation:riseIn .5s .2s backwards}
+.sheet.on .stats div{animation:popIn .4s backwards}
+.sheet.on .stats div:nth-child(1){animation-delay:.2s}.sheet.on .stats div:nth-child(2){animation-delay:.26s}.sheet.on .stats div:nth-child(3){animation-delay:.32s}
+.sheet.on .stats div:nth-child(4){animation-delay:.38s}.sheet.on .stats div:nth-child(5){animation-delay:.44s}.sheet.on .stats div:nth-child(6){animation-delay:.5s}
+.sheet.out{animation:sheetOut .24s ease-in forwards;pointer-events:none}
+#cover.out{animation:coverOut .4s ease-in forwards;pointer-events:none}
+.fighting #hudTop{animation:dropIn .5s backwards}
+.fighting #hudBot{animation:riseIn .5s backwards}
+.fighting .special{animation:popIn .5s .25s backwards}
+.fighting #flip.ready{animation:pulse .5s ease-in-out infinite alternate}
+.fighting .keys{animation:riseIn .5s .15s backwards}
+.fighting #cv{animation:cvIn .35s ease-out backwards}
+@keyframes cvIn{from{opacity:0;scale:1.08}}
+@media (prefers-reduced-motion:reduce){.sheet.on > *,.sheet.on .rec div,.sheet.on .stats div,#setup.on .chip,.fighting #hudTop,.fighting #hudBot,.fighting .special,.fighting .keys,.fighting #cv,.sheet.out,#cover.out{animation:none !important}}
 @media (prefers-reduced-motion:reduce){#orb{transform:none !important}#flip.ready{animation:none}.bar i{transition:none}}
 </style>
 </head>
@@ -261,7 +306,9 @@ kbd{display:none}
     <div class="hint" id="hint">隨意出拳：點左邊出左拳，點右邊出右拳</div>
   </div>
 
-  <section class="sheet on" id="setup">
+  <button id="cover" class="on" type="button" aria-label="遊戲開始"><img src="cover.jpg" alt="來打我啊笨蛋 遊戲封面，點一下開始" draggable="false"></button>
+
+  <section class="sheet" id="setup">
     <div class="swag"></div><svg class="lan l" viewBox="0 0 44 74" aria-hidden="true"><path d="M22 0v10" stroke="#3a1420" stroke-width="2.5"/><ellipse cx="22" cy="34" rx="19" ry="23" fill="#fff3d6" stroke="#3a1420" stroke-width="2.5"/><rect x="11" y="8" width="22" height="6" rx="2" fill="#3a1420"/><rect x="11" y="54" width="22" height="6" rx="2" fill="#3a1420"/><g transform="translate(22 34)" fill="#e8364f"><ellipse cy="-6.5" rx="4" ry="6"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(72)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(144)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(216)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(288)"/><circle r="2.4" fill="#f6c445"/></g><path d="M22 60v13" stroke="#d7263d" stroke-width="3"/></svg><svg class="lan r" viewBox="0 0 44 74" aria-hidden="true"><path d="M22 0v10" stroke="#3a1420" stroke-width="2.5"/><ellipse cx="22" cy="34" rx="19" ry="23" fill="#fff3d6" stroke="#3a1420" stroke-width="2.5"/><rect x="11" y="8" width="22" height="6" rx="2" fill="#3a1420"/><rect x="11" y="54" width="22" height="6" rx="2" fill="#3a1420"/><g transform="translate(22 34)" fill="#e8364f"><ellipse cy="-6.5" rx="4" ry="6"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(72)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(144)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(216)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(288)"/><circle r="2.4" fill="#f6c445"/></g><path d="M22 60v13" stroke="#d7263d" stroke-width="3"/></svg>
     <div class="docno"><span>來打我啊 笨蛋</span><span id="today"></span></div>
     <h1 class="logo"><span>來打我啊！</span><span class="red">笨蛋</span></h1>
@@ -372,7 +419,13 @@ const ROLES={
   manager:{name:'主管',hair:'#22201e',tie:'#1f5a8a',suit:'#3a3f45',glasses:true,lines:['這不是我的意思，是上面的意思。','你先做，方向我再想。','怎麼不早點跟我說？','我很忙，你自己想辦法。','做得不錯，不過全部重來。','會議改到你下班後。','你要多主動一點。','功勞是團隊的，問題是你的。','這個我上次不是講過了嗎？','先做一版我看看，不對再改。','週末有空嗎？小忙而已。','我只是轉達上面的意思。','你要有 owner 的心態。','怎麼又是你出包？']},
   client:{name:'客戶',hair:'#5a3d28',tie:'#7a5c1e',suit:'#4a3b33',glasses:false,lines:['Logo 再大一點，字也再大一點。','我老婆覺得顏色不好看。','合約沒寫，但你們應該要做吧？','便宜一點，以後還有很多案子。','我要高端大氣上檔次。','這個很急，但我下週才有空看。','別家報價只要你的一半。','你們先做，款項之後再談。','預算沒有，但要做到最好。','改回第一版好了。','這個不用錢吧？順便而已。','我姪子說他三天就能做完。','今天晚上可以給我嗎？','我不知道要什麼，但不是這個。']},
   husband:{name:'老公',hair:'#2b2622',tie:'#4a6fa5',suit:'#4a6fa5',glasses:false,casual:true,home:true,lines:['我也很累啊。','等這集看完。','不就是洗個碗而已嗎？','你自己不是也沒做。','好啦好啦，都是我的錯可以了吧。','我有在聽啊，你剛剛說什麼？','那個放哪裡？我找不到。','我以為你會處理。','我等一下再弄。','襪子不是我亂丟的。','你怎麼又生氣了？','再打一場就好，快贏了。','晚餐吃什麼？隨便啊。','垃圾我明天倒。','你有跟我說過嗎？','我媽說的也有道理啊。']},
-  fussy:{name:'無理取鬧',hair:'#3b2c22',tie:'#b0567a',suit:'#b0567a',glasses:false,casual:true,home:true,lines:['你為什麼不早說？說了我也不聽。','我不是在吵，我是在講道理。','你那是什麼態度？','你到底有沒有在乎我？','我說隨便，不是真的隨便。','你自己好好反省。','你變了。','為什麼你都不問我為什麼生氣？','我沒有生氣，你自己想。','你錯在哪裡自己知道。','算了，跟你講也沒用。','我不管，反正就是你的錯。','隨便，你決定，但不要那個。','我有說可以嗎？','你上次也是這樣。','你根本不懂我。']},
+  fussy:{name:'討厭鬼',hair:'#3b2c22',tie:'#b0567a',suit:'#b0567a',glasses:false,casual:true,home:true,lines:['你為什麼不早說？說了我也不聽。','我不是在吵，我是在講道理。','你那是什麼態度？','你到底有沒有在乎我？','我說隨便，不是真的隨便。','你自己好好反省。','你變了。','為什麼你都不問我為什麼生氣？','我沒有生氣，你自己想。','你錯在哪裡自己知道。','算了，跟你講也沒用。','我不管，反正就是你的錯。','隨便，你決定，但不要那個。','我有說可以嗎？','你上次也是這樣。','你根本不懂我。']},
+  jerk:{name:'雞巴郎',hair:'#1f1c1a',tie:'#444',suit:'#3d3d3d',glasses:false,casual:true,home:true,lines:['怎樣？不爽來打我啊。','我就是這樣，你能怎樣？','關你屁事。','規定是給別人守的。','插隊又怎樣？我趕時間。','你誰啊？','有本事去告我啊。','開玩笑的，你也太玻璃心。','是你自己太敏感。','我講話比較直，你不要介意。']},
+  bitch:{name:'賤人',hair:'#6b3a2a',tie:'#a03a6a',suit:'#a03a6a',glasses:false,casual:true,home:true,lines:['我只是實話實說。','唉唷，我沒有別的意思。','你不要想太多。','大家都這樣說你，不是只有我。','我是為你好才告訴你。','你該不會生氣了吧？','我跟主管只是順口提一下。','你的功勞？我也有幫忙啊。','我什麼都沒說喔。','你怎麼這麼開不起玩笑？']},
+  bastard:{name:'王八蛋',hair:'#3a3a3a',tie:'#7a5c1e',suit:'#6a5a3a',glasses:true,casual:true,home:true,lines:['錢？下個月一定還。','我有說過嗎？我不記得了。','合約是合約，交情是交情。','這不能怪我吧。','我也是受害者。','你當初自己要相信我的。','再借我一點，這次一定還。','對啦，都我的錯，滿意了嗎？','不然你想怎樣？','朋友一場，不要這麼計較。']},
+  karen:{name:'奧客',hair:'#8a5a2b',tie:'#c2571a',suit:'#c2571a',glasses:false,casual:true,home:true,lines:['叫你們經理出來。','我要給你一星負評。','我是付錢的，你什麼態度？','我用過了，但我要退貨。','別家都可以，為什麼你們不行？','我認識你們老闆。','等很久了耶，快一點。','便宜一點啦，不然我不買。','你知道我是誰嗎？','我要客訴你。']},
+  toady:{name:'馬屁精',hair:'#22201e',tie:'#1f7a8c',suit:'#2f4858',glasses:true,home:true,lines:['老闆說得太對了！','這個我早就跟老闆報告過了。','老闆，我幫您拿。','還是老闆有遠見。','他啊？我是不方便說啦。','加班？我最樂意了，老闆。','這都是老闆領導有方。','我跟老闆很熟。','你這樣老闆會不高興喔。','老闆今天氣色真好。']},
+  dodger:{name:'甩鍋王',hair:'#4a3b33',tie:'#4f6b3a',suit:'#55606b',glasses:false,home:true,lines:['這不是我負責的。','我當初就說不行。','是他叫我這樣做的。','我有寄信，你沒看到嗎？','系統的問題啦。','我以為你會確認。','流程本來就這樣。','我只是照規定走。','這要問別人。','我那天請假。']},
   mate:{name:'雷隊友',hair:'#3b2c22',tie:'#3f7d4f',suit:'#55606b',glasses:true,lines:['我電腦剛好當機。','你比較厲害，你來。','這個我不太會耶。','我有做啊，只是還沒存檔。','開會我就不去了，你幫我聽。','我請假那天你 cover 一下。','欸，你那個借我抄一下。','哎呀差不多就好了啦。','那個我以為你會做耶。','我網路怪怪的，你先幫我頂一下。','啊我忘了，明天一定。','這不是我負責的吧？','我先下班囉，辛苦了。','主管問的話就說我們一起做的。']}
 };
 const IDS={
@@ -428,7 +481,7 @@ function renderRec(){
 function chips(boxId,data,key){
   const box=$(boxId);
   Object.keys(data).forEach(k=>{
-    const b=document.createElement('button');b.type='button';b.className='chip';b.id=boxId+'-'+k;b.textContent=data[k].name;
+    const b=document.createElement('button');b.type='button';b.className='chip';b.style.setProperty('--i',box.children.length);b.id=boxId+'-'+k;b.textContent=data[k].name;
     b.setAttribute('aria-pressed',String(sel[key]===k));
     b.addEventListener('click',()=>{sel[key]=k;box.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));if(key==='role'){buildBase();drawPreview();$('traceTip').textContent=ROLES[k].monster?'鬧脾氣怪固定用卡通怪物臉，不套用照片。':'上傳後按「描臉型」，用手指沿著臉的輪廓畫一圈，就會照那個形狀裁切。';}});
     box.appendChild(b);
@@ -1111,15 +1164,21 @@ window.addEventListener('resize',resize);
 if(window.ResizeObserver)new ResizeObserver(()=>{resize();if(g&&g.state!=='done'&&!raf)render();}).observe(stage);
 
 /* 申請單互動 */
+function leave(el,cb){
+  if(reduce){el.classList.remove('on');cb&&cb();return;}
+  el.classList.add('out');setTimeout(()=>{el.classList.remove('on','out');cb&&cb();},el.id==='cover'?380:240);
+}
+function bump(el){el.style.animation='none';void el.offsetWidth;el.style.animation='';}
 let step=1;const QS=['你要揍誰？','你是什麼角色？','要不要用武器？','怒氣值多少？'];
 function setStep(n){
   step=clamp(n,1,4);$('setup').dataset.step=step;$('stepQ').textContent=QS[step-1];$('stepNo').textContent='第 '+step+' 步，共 4 步';
-  $('prev').hidden=step===1;$('go').textContent=step===4?'開打！':'下一步';$('setup').scrollTop=0;
+  $('prev').hidden=step===1;$('go').textContent=step===4?'開打！':'下一步';$('setup').scrollTop=0;bump($('stepQ'));bump($('stepNo'));
 }
+$('cover').addEventListener('click',()=>{sndOn=$('snd').checked;thump(160,0.12,0.3);$('setup').classList.add('on');leave($('cover'));});
 $('prev').addEventListener('click',()=>setStep(step-1));
-$('go').addEventListener('click',()=>{if(step<4){setStep(step+1);return;}mood.before=+$('angerBefore').value;mood.after=null;mood.calm=null;sndOn=$('snd').checked;thump(120,0.1,0.3);startFight();});
+$('go').addEventListener('click',()=>{if(step<4){setStep(step+1);return;}mood.before=+$('angerBefore').value;mood.after=null;mood.calm=null;sndOn=$('snd').checked;thump(120,0.1,0.3);leave($('setup'),startFight);});
 function carry(){const v=mood.calm!==null?mood.calm:(mood.after!==null?mood.after:mood.before);mood.before=v;mood.after=null;mood.calm=null;setMeter('angerBefore',v);}
-$('again').addEventListener('click',()=>{carry();thump(120,0.1,0.3);startFight();});
+$('again').addEventListener('click',()=>{carry();thump(120,0.1,0.3);leave($('result'),startFight);});
 ['angerBefore','angerAfter','angerCalm'].forEach(bindMeter);
 $('skipBreath').addEventListener('click',()=>{mood.after=+$('angerAfter').value;mood.calm=null;showResult();});
 $('toBreath').addEventListener('click',()=>{mood.after=+$('angerAfter').value;startBreath();});
