@@ -15,6 +15,13 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://kaifuhsieh.github.io/G-8-Lan/og.jpg">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="theme-color" content="#241245">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="來打我啊">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
@@ -294,6 +301,21 @@ h1.logo{margin:2px 0 4px}
 .logo + .sub{margin-bottom:10px}
 #sync{margin:6px 0 2px}
 #stepQ{margin:8px 0 10px}
+
+/* ---- 加入主畫面小視窗（手機） ---- */
+#a2hs{position:absolute;left:14px;right:14px;bottom:14px;z-index:6;display:none;background:var(--cream);color:var(--ink);border:3px solid var(--gold);border-radius:18px;padding:14px;box-shadow:0 5px 0 var(--ink),0 0 0 2px var(--ink),0 12px 30px rgba(0,0,0,.5)}
+#a2hs.on{display:block;animation:popIn .5s .5s cubic-bezier(.2,.8,.3,1) backwards}
+#a2hs .top{display:flex;gap:12px;align-items:center}
+#a2hs img{width:56px;height:56px;border-radius:14px;border:2px solid var(--ink);flex:none}
+#a2hs h3{margin:0 0 2px;font-size:18px;font-weight:900;line-height:1.25}
+#a2hs p{margin:0;font-size:14px;font-weight:700;line-height:1.45}
+#a2hs ol{margin:10px 0 0;padding:10px 12px 10px 30px;background:#fff;border:2px solid var(--ink);border-radius:12px;font-size:14px;font-weight:700;line-height:1.6;display:none}
+#a2hs.steps ol{display:block}
+#a2hs ol b{color:var(--crimson)}
+#a2hs .row{display:flex;gap:10px;margin-top:12px}
+#a2hs .row .btn{flex:none;padding:10px 14px}
+#a2hs .row .big{flex:1;font-size:18px;padding:9px 12px;box-shadow:0 4px 0 #7d1630,0 0 0 2px var(--ink)}
+@media (prefers-reduced-motion:reduce){#a2hs.on{animation:none}}
 @media (prefers-reduced-motion:reduce){#orb{transform:none !important}#flip.ready{animation:none}.bar i{transition:none}}
 </style>
 </head>
@@ -315,6 +337,13 @@ h1.logo{margin:2px 0 4px}
   </div>
 
   <button id="cover" class="on" type="button" aria-label="遊戲開始"><img src="cover.jpg" alt="來打我啊笨蛋 遊戲封面，點一下開始" draggable="false"></button>
+
+  <div id="a2hs" role="dialog" aria-labelledby="a2hsT">
+    <div class="top"><img src="icon-192.png" alt="">
+      <div><h3 id="a2hsT">常常想揍人嗎？</h3><p>如果你有常想揍人的症狀，建議加入主畫面，隨時出拳。</p></div></div>
+    <ol id="a2hsSteps"></ol>
+    <div class="row"><button class="btn" id="a2hsNo" type="button">先不要</button><button class="big" id="a2hsYes" type="button">加入主畫面</button></div>
+  </div>
 
   <section class="sheet" id="setup">
     <div class="swag"></div><svg class="lan l" viewBox="0 0 44 74" aria-hidden="true"><path d="M22 0v10" stroke="#3a1420" stroke-width="2.5"/><ellipse cx="22" cy="34" rx="19" ry="23" fill="#fff3d6" stroke="#3a1420" stroke-width="2.5"/><rect x="11" y="8" width="22" height="6" rx="2" fill="#3a1420"/><rect x="11" y="54" width="22" height="6" rx="2" fill="#3a1420"/><g transform="translate(22 34)" fill="#e8364f"><ellipse cy="-6.5" rx="4" ry="6"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(72)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(144)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(216)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(288)"/><circle r="2.4" fill="#f6c445"/></g><path d="M22 60v13" stroke="#d7263d" stroke-width="3"/></svg><svg class="lan r" viewBox="0 0 44 74" aria-hidden="true"><path d="M22 0v10" stroke="#3a1420" stroke-width="2.5"/><ellipse cx="22" cy="34" rx="19" ry="23" fill="#fff3d6" stroke="#3a1420" stroke-width="2.5"/><rect x="11" y="8" width="22" height="6" rx="2" fill="#3a1420"/><rect x="11" y="54" width="22" height="6" rx="2" fill="#3a1420"/><g transform="translate(22 34)" fill="#e8364f"><ellipse cy="-6.5" rx="4" ry="6"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(72)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(144)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(216)"/><ellipse cy="-6.5" rx="4" ry="6" transform="rotate(288)"/><circle r="2.4" fill="#f6c445"/></g><path d="M22 60v13" stroke="#d7263d" stroke-width="3"/></svg>
@@ -1231,6 +1260,37 @@ pv.addEventListener('pointermove',e=>{
   }
   drag=null;
 }));
+
+
+/* ---------- 加入主畫面引導 ---------- */
+(function(){
+  const box=$('a2hs'),KEY='boss-room-a2hs';let deferred=null;
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;});
+  window.addEventListener('appinstalled',()=>{box.classList.remove('on');try{localStorage.setItem(KEY,'installed');}catch(e){}});
+  const ua=navigator.userAgent||'';
+  const standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  const coarse=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+  let framed=false;try{framed=window.top!==window.self;}catch(e){framed=true;}
+  let seen='';try{seen=localStorage.getItem(KEY)||'';}catch(e){}
+  const snoozed=seen==='installed'||(seen&&Date.now()-Number(seen)<3*864e5);
+  if(standalone||!coarse||framed||snoozed)return;
+  const isIOS=/iPhone|iPad|iPod/.test(ua),inLine=/\bLine\//i.test(ua),inApp=inLine||/FBAN|FBAV|Instagram/i.test(ua);
+  function steps(){
+    const L=[];
+    if(inApp)L.push('這是 App 內建的瀏覽器，不能安裝。先點右上角選單，選<b>「以預設瀏覽器開啟」</b>。');
+    if(isIOS){L.push('點瀏覽器的<b>「分享」</b>圖示（方框加向上箭頭）。');L.push('往下滑，選<b>「加入主畫面」</b>。');L.push('按右上角<b>「新增」</b>，桌面就會出現圖示。');}
+    else{L.push('點瀏覽器右上角的<b>「⋮」</b>選單。');L.push('選<b>「加到主畫面」</b>或<b>「安裝應用程式」</b>。');L.push('按<b>「新增」</b>或<b>「安裝」</b>，桌面就會出現圖示。');}
+    $('a2hsSteps').innerHTML=L.map(x=>'<li>'+x+'</li>').join('');
+  }
+  function close(){box.classList.remove('on');try{localStorage.setItem(KEY,String(Date.now()));}catch(e){}}
+  $('a2hsNo').addEventListener('click',close);
+  $('a2hsYes').addEventListener('click',()=>{
+    if(box.classList.contains('steps')){close();return;}
+    if(deferred){deferred.prompt();deferred.userChoice.then(()=>{deferred=null;close();}).catch(close);return;}
+    steps();box.classList.add('steps');$('a2hsYes').textContent='知道了';$('a2hsNo').hidden=true;
+  });
+  box.classList.add('on');
+})();
 
 /* ---------- 啟動 ---------- */
 if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches){stage.classList.add('desk');$('hint').textContent='用方向鍵操作，也可以用滑鼠點';}
