@@ -219,6 +219,17 @@ h1.logo{font-size:clamp(28px,10cqw,50px)}
 .sheet > .actions{margin-top:auto;padding-top:14px}
 #breath.on #breathBox,#breath.on #calmBox{margin-top:auto;margin-bottom:auto}
 #calmBox .actions{margin-top:24px}
+
+/* ---- 電腦版鍵帽 ---- */
+kbd{display:none}
+.desk kbd{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:linear-gradient(#fffdf6,#f1e2bd);color:var(--ink);font:900 18px/1 var(--body);border:2px solid var(--ink);border-bottom-width:7px;box-shadow:inset 0 2px 0 #fff;text-shadow:none;transition:transform .04s}
+.desk kbd.down{transform:translateY(5px);border-bottom-width:2px;margin-bottom:5px;background:#ffd84a;box-shadow:none}
+.desk .special kbd{display:flex;margin:0 auto 5px}
+.desk .special:disabled kbd{opacity:.6}
+.keys{position:absolute;left:0;right:0;bottom:92px;display:none;justify-content:space-between;padding:0 14px;pointer-events:none}
+.desk.fighting .keys{display:flex}
+.keys kbd{pointer-events:auto;cursor:pointer;width:52px;height:52px;font-size:26px;border-radius:10px}
+.keys span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 0 var(--ink)}
 @media (prefers-reduced-motion:reduce){#orb{transform:none !important}#flip.ready{animation:none}.bar i{transition:none}}
 </style>
 </head>
@@ -230,8 +241,9 @@ h1.logo{font-size:clamp(28px,10cqw,50px)}
     <div class="barRow"><span id="bossName">老闆</span><span id="hpText">3600 / 3600</span></div>
     <div class="bar"><i id="hpFill"></i></div>
   </div>
-  <button class="special" id="summon" type="button" disabled>巴哈姆特<small id="summonSub">×0</small></button>
-  <button class="special" id="flip" type="button" disabled>翻桌<small>怒氣滿可用</small></button>
+  <button class="special" id="summon" type="button" disabled><kbd id="kU" aria-hidden="true">↑</kbd>召喚獸<small id="summonSub">×0</small></button>
+  <button class="special" id="flip" type="button" disabled><kbd id="kD" aria-hidden="true">↓</kbd>翻桌<small>怒氣滿可用</small></button>
+  <div class="keys"><span><kbd id="kL">←</kbd>左拳</span><span><kbd id="kR">→</kbd>右拳</span></div>
   <div class="hud" id="hudBot">
     <div class="barRow"><span>怒氣</span><span id="rageText">0%</span></div>
     <div class="bar"><i id="rageFill"></i></div>
@@ -246,7 +258,7 @@ h1.logo{font-size:clamp(28px,10cqw,50px)}
     <div class="rec">
       <div><b id="rDays">0</b>連續天數</div>
       <div><b id="rTotal">0</b>累計場數</div>
-      <div><b id="rCharge">0</b>巴哈姆特</div>
+      <div><b id="rCharge">0</b>召喚獸</div>
     </div>
     <p id="sync">不用登入，紀錄存在這台裝置的瀏覽器。</p>
     <h2 id="stepQ">你要揍誰？</h2>
@@ -325,7 +337,7 @@ h1.logo{font-size:clamp(28px,10cqw,50px)}
       <div><span>最高連擊</span><b id="sCombo"></b></div>
       <div><span>今天第幾場</span><b id="sToday"></b></div>
       <div><span>連續天數</span><b id="sDays"></b></div>
-      <div><span>巴哈姆特</span><b id="sCharge"></b></div>
+      <div><span>召喚獸</span><b id="sCharge"></b></div>
     </div>
     <div class="actions">
       <button class="btn" id="back" type="button">換對象</button>
@@ -345,26 +357,38 @@ const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').ma
 
 /* ---------- 選項資料 ---------- */
 const ROLES={
-  boss:{name:'老闆',hair:'#8d8d8d',tie:'#b3261e',suit:'#2b2f3a',glasses:false,lines:['公司就是你的家。','年輕人不要太計較薪水。','我當年都睡在公司。','這個很簡單吧，下班前給我。','共體時艱，今年不調薪。','你請假，那工作誰做？']},
-  manager:{name:'主管',hair:'#22201e',tie:'#1f5a8a',suit:'#3a3f45',glasses:true,lines:['這個我上次不是講過了嗎？','先做一版我看看，不對再改。','週末有空嗎？小忙而已。','我只是轉達上面的意思。','你要有 owner 的心態。','怎麼又是你出包？']},
-  client:{name:'客戶',hair:'#5a3d28',tie:'#7a5c1e',suit:'#4a3b33',glasses:false,lines:['預算沒有，但要做到最好。','改回第一版好了。','這個不用錢吧？順便而已。','我姪子說他三天就能做完。','今天晚上可以給我嗎？','我不知道要什麼，但不是這個。']},
-  husband:{name:'老公',hair:'#2b2622',tie:'#4a6fa5',suit:'#4a6fa5',glasses:false,casual:true,home:true,lines:['我等一下再弄。','襪子不是我亂丟的。','你怎麼又生氣了？','再打一場就好，快贏了。','晚餐吃什麼？隨便啊。','垃圾我明天倒。','你有跟我說過嗎？','我媽說的也有道理啊。']},
-  fussy:{name:'無理取鬧',hair:'#3b2c22',tie:'#b0567a',suit:'#b0567a',glasses:false,casual:true,home:true,lines:['我沒有生氣，你自己想。','你錯在哪裡自己知道。','算了，跟你講也沒用。','我不管，反正就是你的錯。','隨便，你決定，但不要那個。','我有說可以嗎？','你上次也是這樣。','你根本不懂我。']},
-  mate:{name:'雷隊友',hair:'#3b2c22',tie:'#3f7d4f',suit:'#55606b',glasses:true,lines:['那個我以為你會做耶。','我網路怪怪的，你先幫我頂一下。','啊我忘了，明天一定。','這不是我負責的吧？','我先下班囉，辛苦了。','主管問的話就說我們一起做的。']}
+  boss:{name:'老闆',hair:'#8d8d8d',tie:'#b3261e',suit:'#2b2f3a',glasses:false,lines:['我是為你好。','你要把公司當成自己的事業。','加班是因為你效率不好。','我們是一個大家庭。','格局要放大一點。','錢不是最重要的，重要的是成長。','這個禮拜六大家來公司聚一聚。','你們年輕人就是吃不了苦。','我凌晨三點傳的訊息你怎麼沒回？','公司就是你的家。','年輕人不要太計較薪水。','我當年都睡在公司。','這個很簡單吧，下班前給我。','共體時艱，今年不調薪。','你請假，那工作誰做？']},
+  manager:{name:'主管',hair:'#22201e',tie:'#1f5a8a',suit:'#3a3f45',glasses:true,lines:['這不是我的意思，是上面的意思。','你先做，方向我再想。','怎麼不早點跟我說？','我很忙，你自己想辦法。','做得不錯，不過全部重來。','會議改到你下班後。','你要多主動一點。','功勞是團隊的，問題是你的。','這個我上次不是講過了嗎？','先做一版我看看，不對再改。','週末有空嗎？小忙而已。','我只是轉達上面的意思。','你要有 owner 的心態。','怎麼又是你出包？']},
+  client:{name:'客戶',hair:'#5a3d28',tie:'#7a5c1e',suit:'#4a3b33',glasses:false,lines:['Logo 再大一點，字也再大一點。','我老婆覺得顏色不好看。','合約沒寫，但你們應該要做吧？','便宜一點，以後還有很多案子。','我要高端大氣上檔次。','這個很急，但我下週才有空看。','別家報價只要你的一半。','你們先做，款項之後再談。','預算沒有，但要做到最好。','改回第一版好了。','這個不用錢吧？順便而已。','我姪子說他三天就能做完。','今天晚上可以給我嗎？','我不知道要什麼，但不是這個。']},
+  husband:{name:'老公',hair:'#2b2622',tie:'#4a6fa5',suit:'#4a6fa5',glasses:false,casual:true,home:true,lines:['我也很累啊。','等這集看完。','不就是洗個碗而已嗎？','你自己不是也沒做。','好啦好啦，都是我的錯可以了吧。','我有在聽啊，你剛剛說什麼？','那個放哪裡？我找不到。','我以為你會處理。','我等一下再弄。','襪子不是我亂丟的。','你怎麼又生氣了？','再打一場就好，快贏了。','晚餐吃什麼？隨便啊。','垃圾我明天倒。','你有跟我說過嗎？','我媽說的也有道理啊。']},
+  fussy:{name:'無理取鬧',hair:'#3b2c22',tie:'#b0567a',suit:'#b0567a',glasses:false,casual:true,home:true,lines:['你為什麼不早說？說了我也不聽。','我不是在吵，我是在講道理。','你那是什麼態度？','你到底有沒有在乎我？','我說隨便，不是真的隨便。','你自己好好反省。','你變了。','為什麼你都不問我為什麼生氣？','我沒有生氣，你自己想。','你錯在哪裡自己知道。','算了，跟你講也沒用。','我不管，反正就是你的錯。','隨便，你決定，但不要那個。','我有說可以嗎？','你上次也是這樣。','你根本不懂我。']},
+  mate:{name:'雷隊友',hair:'#3b2c22',tie:'#3f7d4f',suit:'#55606b',glasses:true,lines:['我電腦剛好當機。','你比較厲害，你來。','這個我不太會耶。','我有做啊，只是還沒存檔。','開會我就不去了，你幫我聽。','我請假那天你 cover 一下。','欸，你那個借我抄一下。','哎呀差不多就好了啦。','那個我以為你會做耶。','我網路怪怪的，你先幫我頂一下。','啊我忘了，明天一定。','這不是我負責的吧？','我先下班囉，辛苦了。','主管問的話就說我們一起做的。']}
 };
 const IDS={
-  eng:{name:'工程師',sleeve:'#4b5563',lines:['這功能很簡單，明天上線。','為什麼會有 bug？你不是工程師嗎？','加個按鈕而已，要三天？']},
-  design:{name:'設計師',sleeve:'#3a1420',lines:['Logo 放大一點，再有質感一點。','要五彩繽紛的黑。','感覺不對，但我說不上來。']},
-  sales:{name:'業務',sleeve:'#27406b',lines:['這個月業績呢？','客戶說什麼你就答應什麼。','獎金明年再說。']},
+  eng:{name:'工程師',sleeve:'#4b5563',lines:['你寫的怎麼跟我想的不一樣？','這功能很簡單，明天上線。','為什麼會有 bug？你不是工程師嗎？','加個按鈕而已，要三天？']},
+  design:{name:'設計師',sleeve:'#3a1420',lines:['參考別人的，做一模一樣的就好。','Logo 放大一點，再有質感一點。','要五彩繽紛的黑。','感覺不對，但我說不上來。']},
+  sales:{name:'業務',sleeve:'#27406b',lines:['客戶不簽是你不夠努力。','這個月業績呢？','客戶說什麼你就答應什麼。','獎金明年再說。']},
+  plan:{name:'企劃',sleeve:'#8a5a2b',lines:['企劃書再改一版，要有亮點。','點子不錯，但預算是零。','明天提案，今天先想十個方向。','要創新，但不能跟去年差太多。']},
+  lead:{name:'小主管',sleeve:'#2f4858',lines:['上面壓下來，你要扛住。','你的人你自己管好。','人不能加，目標要翻倍。','你是主管，怎麼可以準時下班？']},
+  cs:{name:'客服',sleeve:'#1f7a8c',lines:['客人永遠是對的。','被罵是你的工作。','客訴怎麼又升級了？','笑一點，電話裡聽得出來。']},
+  mkt:{name:'行銷',sleeve:'#c2571a',lines:['為什麼沒有爆紅？','預算砍半，成效要加倍。','這篇貼文做到一百萬觸及。','跟風做一個一樣的就好。']},
+  pm:{name:'專案經理',sleeve:'#5a4a8a',lines:['時程不能延，需求可以加。','進度為什麼落後？你不是 PM 嗎？','三方都不滿意，你去協調。','人力沒有，但下週要交。']},
+  acct:{name:'會計',sleeve:'#4f6b3a',lines:['帳怎麼對不起來？','月底結帳你怎麼可以請假？','這張發票想辦法報掉。','差一塊錢也要找出來。']},
+  newbie:{name:'新人',sleeve:'#7d8597',lines:['這個不用教吧？','你們這一代抗壓性真低。','新人就是要多做。','試用期還沒過喔。']},
   dad:{name:'爸爸',sleeve:'#3f6b4f',lines:['小孩發燒？報告還是要交。','接小孩不是早退的理由。','家庭日那天照常加班。']},
   mom:{name:'媽媽',sleeve:'#b0567a',lines:['小孩發燒？報告還是要交。','接小孩不是早退的理由。','育嬰假回來位子不一定在。']},
-  admin:{name:'行政',sleeve:'#7a4a55',lines:['這張報帳單重貼。','順便幫我訂個便當。','影印機壞了你處理一下。']}
+  admin:{name:'行政',sleeve:'#7a4a55',lines:['這不是你的工作，但你做一下。','這張報帳單重貼。','順便幫我訂個便當。','影印機壞了你處理一下。']}
 };
 const WEAPONS={
   fist:{name:'空手',dmg:[7,11],sfx:['碰','咚','砰']},
   slipper:{name:'拖鞋',dmg:[8,12],sfx:['啪','啪啦']},
   keyboard:{name:'鍵盤',dmg:[9,13],sfx:['喀','喀啦']},
-  folder:{name:'公文夾',dmg:[8,12],sfx:['唰','啪']}
+  folder:{name:'公文夾',dmg:[8,12],sfx:['唰','啪']},
+  pan:{name:'平底鍋',dmg:[10,14],sfx:['鏘','哐']},
+  hammer:{name:'充氣槌',dmg:[7,11],sfx:['啾','波']},
+  pillow:{name:'枕頭',dmg:[6,10],sfx:['噗','蓬']},
+  fish:{name:'鹹魚',dmg:[8,12],sfx:['啪嘰','噠']},
+  paper:{name:'捲報紙',dmg:[7,11],sfx:['啪','唰']}
 };
 const sel={role:'boss',id:'eng',wp:'fist'};
 const photo={img:null,zoom:1,px:0,py:0,outline:null};
@@ -567,7 +591,7 @@ function newGame(){
   g={state:'fight',L:layout(),maxHp:3600,hp:3600,rage:0,t:0,hits:0,combo:0,maxCombo:0,comboT:0,
      head:{x:0,y:0,r:0,vx:0,vy:0,vr:0,ty:0,tr:0},lumps:0,
      fist:{l:{p:0,on:false,hit:false},r:{p:0,on:false,hit:false}},
-     lines:pool,line:'',lineT:0,nextLine:0.6,
+     lines:pool,line:'',lineT:0,nextLine:0.4,lastLine:-1,
      beatT:0,notes:[],nextSlot:4,lastSide:'l',judge:null,perfect:0,good:0,
      goT:0,countT:0,lastTick:0,
      parts:[],bursts:[],nums:[],shake:0,flash:0,special:null,koT:0,charges:rec.charges};
@@ -681,7 +705,7 @@ function showResult(){
   $('sDays').textContent=rec.dayStreak+' 天';
   $('sCharge').textContent=chargeText();
   const u=$('unlock');
-  if(g.unlocked){u.style.display='block';u.textContent='連打三場，獲得一次巴哈姆特召喚。';}else u.style.display='none';
+  if(g.unlocked){u.style.display='block';u.textContent='連打三場，獲得一次召喚獸召喚。';}else u.style.display='none';
   $('result').classList.add('on');renderRec();
 }
 
@@ -708,8 +732,8 @@ function update(dt){
   if(g.state==='fight'){
     g.nextLine-=dt;if(g.lineT>0)g.lineT-=dt;
     if(g.nextLine<=0&&!g.special){
-      g.line=g.lines[(Math.random()*g.lines.length)|0];g.lineT=2.0;g.nextLine=2.5;
-      const before=g.rage;addRage(5);if((before<100)!==(g.rage<100)||true)updateHud();
+      let li=(Math.random()*g.lines.length)|0;if(li===g.lastLine)li=(li+1)%g.lines.length;g.lastLine=li;g.line=g.lines[li];g.lineT=1.6;g.nextLine=1.75;
+      const before=g.rage;addRage(3);if((before<100)!==(g.rage<100)||true)updateHud();
     }
   }
   const sp=g.special;
@@ -837,7 +861,7 @@ function drawBubble(L){
   if(cur)lines.push(cur);
   let bw=0;for(const s of lines)bw=Math.max(bw,ctx.measureText(s).width);
   const th=lines.length*fs*1.35,rx=bw*0.5+26,ry=th*0.5+20,top=L.cy-L.FH*0.5,by=Math.max(54+ry*1.15,top-ry*1.15-10);
-  const pop=clamp((2.0-g.lineT)/0.12,0,1),N=26;
+  const pop=clamp((1.6-g.lineT)/0.12,0,1),N=26;
   ctx.save();ctx.translate(L.cx,by);ctx.scale(pop,pop);
   ctx.fillStyle='#fffdf6';ctx.strokeStyle='#3a1420';ctx.lineWidth=3;ctx.lineJoin='round';ctx.beginPath();
   for(let i=0;i<N;i++){const a=i/N*Math.PI*2,k=i%2?1.0:1.16;ctx.lineTo(Math.cos(a)*rx*k,Math.sin(a)*ry*k);}
@@ -958,6 +982,30 @@ function drawWeapon(R){
   }else if(sel.wp==='folder'){
     ctx.fillStyle='#e7b93c';rr(-R*0.95,-R*1.9,R*1.9,R*1.4,4);ctx.fill();ctx.stroke();
     ctx.fillStyle='#f4f0e4';ctx.fillRect(-R*0.55,-R*1.6,R*1.1,R*0.3);ctx.strokeRect(-R*0.55,-R*1.6,R*1.1,R*0.3);
+  }else if(sel.wp==='pan'){
+    ctx.fillStyle='#3a1420';rr(-R*0.14,-R*1.1,R*0.28,R*1.2,4);ctx.fill();
+    ctx.fillStyle='#4a4f57';ctx.beginPath();ctx.arc(0,-R*1.75,R*0.95,0,7);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#2b2f35';ctx.beginPath();ctx.arc(0,-R*1.75,R*0.72,0,7);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.25)';ctx.beginPath();ctx.ellipse(-R*0.3,-R*2.0,R*0.3,R*0.12,-0.6,0,7);ctx.fill();
+  }else if(sel.wp==='hammer'){
+    ctx.fillStyle='#ffd447';rr(-R*0.13,-R*1.5,R*0.26,R*1.6,5);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#e8364f';rr(-R*1.05,-R*2.3,R*2.1,R*0.95,R*0.3);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#ffd447';ctx.fillRect(-R*0.2,-R*2.28,R*0.4,R*0.91);
+    ctx.strokeStyle='#3a1420';rr(-R*1.05,-R*2.3,R*2.1,R*0.95,R*0.3);ctx.stroke();
+  }else if(sel.wp==='pillow'){
+    ctx.fillStyle='#fffdf6';ctx.beginPath();
+    ctx.moveTo(-R*1.1,-R*2.1);ctx.quadraticCurveTo(0,-R*1.85,R*1.1,-R*2.1);ctx.quadraticCurveTo(R*0.9,-R*1.4,R*1.1,-R*0.7);
+    ctx.quadraticCurveTo(0,-R*0.95,-R*1.1,-R*0.7);ctx.quadraticCurveTo(-R*0.9,-R*1.4,-R*1.1,-R*2.1);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#9ec5ea';ctx.lineWidth=3;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*R*0.5,-R*1.9);ctx.lineTo(i*R*0.5,-R*0.95);ctx.stroke();}
+  }else if(sel.wp==='fish'){
+    ctx.fillStyle='#8fa9b8';ctx.beginPath();ctx.ellipse(0,-R*1.75,R*0.5,R*1.0,0,0,7);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,-R*0.85);ctx.lineTo(-R*0.5,-R*0.3);ctx.lineTo(R*0.5,-R*0.3);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-R*0.15,-R*2.35,R*0.13,0,7);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#3a1420';ctx.beginPath();ctx.arc(-R*0.15,-R*2.35,R*0.05,0,7);ctx.fill();
+    ctx.lineWidth=1.5;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(R*0.05,-R*(1.9-i*0.35),R*0.22,0.2,Math.PI-0.2);ctx.stroke();}
+  }else if(sel.wp==='paper'){
+    ctx.fillStyle='#f4f0e4';rr(-R*0.32,-R*2.5,R*0.64,R*2.4,R*0.3);ctx.fill();ctx.stroke();
+    ctx.lineWidth=1.5;ctx.strokeStyle='#8a8272';for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(-R*0.2,-R*(2.25-i*0.3));ctx.lineTo(R*0.2,-R*(2.3-i*0.3));ctx.stroke();}
   }
 }
 function drawFist(side,L){
@@ -1035,7 +1083,13 @@ cv.addEventListener('pointermove',e=>{
 ['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>{down=null;}));
 $('flip').addEventListener('click',startFlip);
 $('summon').addEventListener('click',startSummon);
+const KEYCAP={ArrowLeft:'kL',ArrowRight:'kR',ArrowUp:'kU',ArrowDown:'kD'};
+window.addEventListener('keyup',e=>{const k=KEYCAP[e.key];if(k)$(k).classList.remove('down');});
+window.addEventListener('blur',()=>{for(const k in KEYCAP)$(KEYCAP[k]).classList.remove('down');});
+$('kL').addEventListener('pointerdown',e=>{e.preventDefault();punch('l');});
+$('kR').addEventListener('pointerdown',e=>{e.preventDefault();punch('r');});
 window.addEventListener('keydown',e=>{
+  const kc=KEYCAP[e.key];if(kc&&g&&g.state!=='done')$(kc).classList.add('down');
   if(!g||g.state!=='fight')return;
   if(e.key==='ArrowLeft'){punch('l');e.preventDefault();}
   else if(e.key==='ArrowRight'){punch('r');e.preventDefault();}
@@ -1101,7 +1155,7 @@ pv.addEventListener('pointermove',e=>{
 }));
 
 /* ---------- 啟動 ---------- */
-if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches)$('hint').textContent='鍵盤：← → 出拳，↑ 巴哈姆特，↓ 翻桌';
+if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches){stage.classList.add('desk');$('hint').textContent='用方向鍵操作，也可以用滑鼠點';}
 chips('roleChips',ROLES,'role');chips('idChips',IDS,'id');chips('wpChips',WEAPONS,'wp');
 $('today').textContent=dayKey(0);
 setStep(1);loadLocal();renderRec();buildBase();drawPreview();resize();
