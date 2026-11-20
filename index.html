@@ -286,6 +286,14 @@ kbd{display:none}
 .fighting #cv{animation:cvIn .35s ease-out backwards}
 @keyframes cvIn{from{opacity:0;scale:1.08}}
 @media (prefers-reduced-motion:reduce){.sheet.on > *,.sheet.on .rec div,.sheet.on .stats div,#setup.on .chip,.fighting #hudTop,.fighting #hudBot,.fighting .special,.fighting .keys,.fighting #cv,.sheet.out,#cover.out{animation:none !important}}
+
+/* ---- 拿掉頁首小標，內容上移 ---- */
+.docno{display:none}
+#setup{padding-top:28px}
+h1.logo{margin:2px 0 4px}
+.logo + .sub{margin-bottom:10px}
+#sync{margin:6px 0 2px}
+#stepQ{margin:8px 0 10px}
 @media (prefers-reduced-motion:reduce){#orb{transform:none !important}#flip.ready{animation:none}.bar i{transition:none}}
 </style>
 </head>
